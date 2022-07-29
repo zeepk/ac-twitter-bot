@@ -1,9 +1,8 @@
-# TypeScript Node Express Template
-Template project for a Node app with Express and TypeScript
+# Animal Crossing Twitter Bot
+Currently tweets hourly with a random in-game clothing item
 
-# Instructions
-Pretty simple, really
+# Tools
+Data source is the [ACNH Data Spreadsheet](https://docs.google.com/spreadsheets/d/13d_LAJPlxMa_DubPTuirkIV4DERBMXbrWQsmSh8ReK4/edit#gid=1022368750)
+Cron job scheduled on [cron-job.org](https:cron-job.org)
+Hosted on [Render](https://render.com/)
 
-1. Clone with `git clone https://github.com/zeepk/typescript-node-express-template.git`
-2. Install node modules with `npm install`
-3. Run with `npm start` which uses `ts-node-dev` to stay up to date with your TypeScript changes
