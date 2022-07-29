@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import json from './items.json';
 const { TwitterApi } = require('twitter-api-v2');
 dotenv.config();
 
@@ -15,7 +16,17 @@ const client = twitterClient.readWrite;
 const app = express();
 
 app.get('/', async (req, res) => {
-    await client.v2.tweet('Hello, this is a test.');
+    const list: any[] = Array.of(json);
+    const items = list.at(0);
+    const itemIndex = Math.floor(Math.random() * items.length);
+    const item = items[itemIndex];
+    if (!item || !item.variants) {
+        res.send('No item found');
+    }
+    const variant =
+        item.variants[Math.floor(Math.random() * item.variants.length)];
+    const imageUri = variant.closetImage ?? variant.storageImage;
+    await client.v2.tweet(item.name);
     res.send('success');
 });
 
