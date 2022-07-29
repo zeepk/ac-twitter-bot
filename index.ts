@@ -17,7 +17,7 @@ const app = express();
 
 app.get('/', async (req, res) => {
     const list: any[] = Array.of(json);
-    const items = list.at(0);
+    const items = list[0];
     const itemIndex = Math.floor(Math.random() * items.length);
     const item = items[itemIndex];
     if (!item || !item.variants) {
