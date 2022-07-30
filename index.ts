@@ -42,6 +42,21 @@ app.get('/', async (req, res) => {
         message: '',
         data: {},
     };
+
+    // check secret
+    const secret = req.query.secret;
+    if (!secret) {
+        resp.message = 'Missing secret';
+        res.json(resp);
+        return;
+    }
+    if (secret !== process.env.SECRET) {
+        resp.message = 'Incorrect secret';
+        res.json(resp);
+        return;
+    }
+
+    // get random item
     const list: any[] = Array.of(json);
     const items = list[0];
     const itemIndex = Math.floor(Math.random() * items.length);
@@ -49,21 +64,28 @@ app.get('/', async (req, res) => {
     if (!item || !item.variants) {
         resp.message = 'No item found';
         res.json(resp);
+        return;
     }
     const name = item.name.charAt(0).toUpperCase() + item.name.slice(1);
+
+    // get random variant
     const variant =
         item.variants[Math.floor(Math.random() * item.variants.length)];
+
+    // get image uri and download
     const imageUri = variant.closetImage ?? variant.storageImage;
     const img = await downloadImage(imageUri, './image.png');
     const upload = await tweetClient.v1.uploadMedia('./image.png');
+
+    // send tweet with image
     await tweetClient.v2.tweet(name, {
         media: {
             media_ids: [upload],
         },
     });
+
     resp.status = 'success';
     resp.data = { name, imageUri, img, upload };
-
     res.json(resp);
 });
 
