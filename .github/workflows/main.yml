@@ -1,0 +1,12 @@
+
+name: Hit tweet endpoint
+on: workflow_dispatch
+jobs:
+  discord-message:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Push Message
+        uses: JamesIves/fetch-api-data-action@v2.1.0
+        with:
+          endpoint: https://ac-twitter-bot.onrender.com/?secret=${{ secrets.QUERY_SECRET }}
+          configuration: '{ "method": "GET", "headers": {"Content-Type": "application/json"}}'
