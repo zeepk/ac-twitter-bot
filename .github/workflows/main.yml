@@ -1,6 +1,8 @@
 
 name: Hit tweet endpoint
-on: workflow_dispatch
+on:
+  schedule:
+    - cron: '0 * * * *'
 jobs:
   discord-message:
     runs-on: ubuntu-latest
