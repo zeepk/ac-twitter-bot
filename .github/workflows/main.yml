@@ -1,14 +1,20 @@
-
-name: Hit tweet endpoint
-on:
-  schedule:
-    - cron: '0 */4 * * *'
+name: send-tweet
+on: workflow_dispatch
 jobs:
-  discord-message:
+  tweet:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+
     steps:
-      - name: Send Push Message
-        uses: JamesIves/fetch-api-data-action@v2.1.0
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
         with:
-          endpoint: https://ac-twitter-bot.onrender.com/?secret=${{ secrets.QUERY_SECRET }}
-          configuration: '{ "method": "GET", "headers": {"Content-Type": "application/json"}}'
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm i
+      - run: echo "${{ secrets.ENV_FILE }}" > .env
+      - run: npm run build
+      - run: node index.js
