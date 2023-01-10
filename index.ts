@@ -1,4 +1,3 @@
-import express from 'express';
 import dotenv from 'dotenv';
 import json from './items.json';
 import { TwitterApi } from 'twitter-api-v2';
@@ -25,45 +24,32 @@ const downloadImage = (url: string, filepath: string) => {
     });
 };
 
-const twitterClient = new TwitterApi({
-    appKey: process.env.CONSUMER_KEY ?? '',
-    appSecret: process.env.CONSUMER_SECRET ?? '',
-    accessToken: process.env.ACCESS_TOKEN ?? '',
-    accessSecret: process.env.ACCESS_TOKEN_SECRET ?? '',
-});
+const sendTweet = async () => {
+    const twitterClient = new TwitterApi({
+        appKey: process.env.CONSUMER_KEY ?? '',
+        appSecret: process.env.CONSUMER_SECRET ?? '',
+        accessToken: process.env.ACCESS_TOKEN ?? '',
+        accessSecret: process.env.ACCESS_TOKEN_SECRET ?? '',
+    });
 
-const tweetClient = twitterClient.readWrite;
-
-const app = express();
-
-app.get('/', async (req, res) => {
-    const resp = {
-        status: 'error',
-        message: '',
-        data: {},
+    type Variant = {
+        closetImage: string;
+        storageImage: string;
     };
 
-    // check secret
-    const secret = req.query.secret;
-    if (!secret) {
-        resp.message = 'Missing secret';
-        res.json(resp);
-        return;
-    }
-    if (secret !== process.env.SECRET) {
-        resp.message = 'Incorrect secret';
-        res.json(resp);
-        return;
-    }
+    type Item = {
+        name: string;
+        variants: Variant[];
+    };
 
+    const tweetClient = twitterClient.readWrite;
     // get random item
-    const list: any[] = Array.of(json);
-    const items = list[0];
+    const list: object = Array.of(json);
+    const items = list[0] as Item[];
     const itemIndex = Math.floor(Math.random() * items.length);
     const item = items[itemIndex];
     if (!item || !item.variants) {
-        resp.message = 'No item found';
-        res.json(resp);
+        console.error('No item found');
         return;
     }
     const name = item.name.charAt(0).toUpperCase() + item.name.slice(1);
@@ -74,22 +60,21 @@ app.get('/', async (req, res) => {
 
     // get image uri and download
     const imageUri = variant.closetImage ?? variant.storageImage;
-    const img = await downloadImage(imageUri, './image.png');
+    await downloadImage(imageUri, './image.png');
     const upload = await tweetClient.v1.uploadMedia('./image.png');
 
     // send tweet with image
-    await tweetClient.v2.tweet(name, {
+    const resp = await tweetClient.v2.tweet(name, {
         media: {
             media_ids: [upload],
         },
     });
 
-    resp.status = 'success';
-    resp.data = { name, imageUri, img, upload };
-    res.json(resp);
-});
+    if (resp.errors) {
+        console.log('errors:', resp.errors);
+    } else {
+        console.log(`Successfully tweeted: ${name}`);
+    }
+};
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log('The application is listening on port', port);
-});
+sendTweet();
