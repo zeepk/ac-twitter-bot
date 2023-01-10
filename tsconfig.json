@@ -9,7 +9,14 @@
         "baseUrl": ".",
         "noImplicitAny": false,
         "isolatedModules": false,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "outDir": "."
     },
-    "include": ["src", "index.ts"]
+    "include": ["src", "index.ts"],
+    "references": [
+        {
+            "path": "./tsconfig.build.json"
+        }
+    ],
+    "exclude": ["node_modules"]
 }
